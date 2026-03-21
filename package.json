@@ -1,0 +1,36 @@
+{
+  "name": "@gridworkjs/core",
+  "version": "1.0.0",
+  "description": "geometry primitives and spatial index protocol",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./geometry": "./src/geometry.js",
+    "./bounds": "./src/bounds.js",
+    "./protocol": "./src/protocol.js"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "spatial",
+    "geometry",
+    "quadtree",
+    "rtree",
+    "spatial-index",
+    "bounds",
+    "point",
+    "rect",
+    "circle"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gridworkjs/core.git"
+  },
+  "files": [
+    "index.js",
+    "src/"
+  ]
+}
