@@ -13,7 +13,14 @@ export function bounds(geometry) {
       }
     default:
       if ('minX' in geometry && 'minY' in geometry && 'maxX' in geometry && 'maxY' in geometry) {
-        return { minX: geometry.minX, minY: geometry.minY, maxX: geometry.maxX, maxY: geometry.maxY }
+        const { minX, minY, maxX, maxY } = geometry
+        if (!Number.isFinite(minX) || !Number.isFinite(minY) || !Number.isFinite(maxX) || !Number.isFinite(maxY)) {
+          throw new Error('bounds values must be finite numbers')
+        }
+        if (minX > maxX || minY > maxY) {
+          throw new Error('inverted bounds (minX > maxX or minY > maxY)')
+        }
+        return { minX, minY, maxX, maxY }
       }
       throw new Error(`cannot compute bounds for unknown geometry type: ${geometry.type}`)
   }
@@ -67,6 +74,9 @@ export function centerY(b) {
 }
 
 export function expandBy(b, amount) {
+  if (!Number.isFinite(amount)) {
+    throw new Error('amount must be a finite number')
+  }
   const cx = (b.minX + b.maxX) / 2
   const cy = (b.minY + b.maxY) / 2
   const hx = Math.max(0, (b.maxX - b.minX) / 2 + amount)

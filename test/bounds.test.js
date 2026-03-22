@@ -27,6 +27,34 @@ describe('bounds', () => {
     assert.deepEqual(b, { minX: 0, minY: 0, maxX: 10, maxY: 10 })
   })
 
+  it('validates plain bounds have finite numbers', () => {
+    assert.throws(() => bounds({ minX: NaN, minY: 0, maxX: 10, maxY: 10 }), /finite numbers/)
+    assert.throws(() => bounds({ minX: 0, minY: Infinity, maxX: 10, maxY: 10 }), /finite numbers/)
+    assert.throws(() => bounds({ minX: 'a', minY: 0, maxX: 10, maxY: 10 }), /finite numbers/)
+    assert.throws(() => bounds({ minX: 0, minY: 0, maxX: undefined, maxY: 10 }), /finite numbers/)
+    assert.throws(() => bounds({ minX: 0, minY: 0, maxX: 10, maxY: null }), /finite numbers/)
+  })
+
+  it('validates plain bounds are not inverted', () => {
+    assert.throws(() => bounds({ minX: 10, minY: 0, maxX: 5, maxY: 10 }), /inverted bounds/)
+    assert.throws(() => bounds({ minX: 0, minY: 10, maxX: 10, maxY: 5 }), /inverted bounds/)
+  })
+
+  it('accepts zero-area plain bounds', () => {
+    const b = bounds({ minX: 5, minY: 5, maxX: 5, maxY: 5 })
+    assert.deepEqual(b, { minX: 5, minY: 5, maxX: 5, maxY: 5 })
+  })
+
+  it('computes circle bounds with zero radius', () => {
+    const b = bounds(circle(3, 7, 0))
+    assert.deepEqual(b, { minX: 3, minY: 7, maxX: 3, maxY: 7 })
+  })
+
+  it('computes circle bounds with negative center', () => {
+    const b = bounds(circle(-5, -10, 3))
+    assert.deepEqual(b, { minX: -8, minY: -13, maxX: -2, maxY: -7 })
+  })
+
   it('throws on unknown geometry', () => {
     assert.throws(() => bounds({ type: 'polygon' }), /unknown geometry type/)
   })
@@ -122,6 +150,12 @@ describe('merge', () => {
     const a = { minX: 1, minY: 2, maxX: 3, maxY: 4 }
     assert.deepEqual(merge(a, a), a)
   })
+
+  it('merges fully disjoint bounds', () => {
+    const a = { minX: 0, minY: 0, maxX: 2, maxY: 2 }
+    const b = { minX: 8, minY: 8, maxX: 10, maxY: 10 }
+    assert.deepEqual(merge(a, b), { minX: 0, minY: 0, maxX: 10, maxY: 10 })
+  })
 })
 
 describe('area', () => {
@@ -142,6 +176,23 @@ describe('enlargedArea', () => {
   it('computes the area if two bounds were merged', () => {
     const a = { minX: 0, minY: 0, maxX: 5, maxY: 5 }
     const b = { minX: 3, minY: 3, maxX: 10, maxY: 10 }
+    assert.equal(enlargedArea(a, b), 100)
+  })
+
+  it('equals area of outer when one contains the other', () => {
+    const outer = { minX: 0, minY: 0, maxX: 10, maxY: 10 }
+    const inner = { minX: 2, minY: 2, maxX: 5, maxY: 5 }
+    assert.equal(enlargedArea(outer, inner), 100)
+  })
+
+  it('equals area for identical bounds', () => {
+    const a = { minX: 0, minY: 0, maxX: 4, maxY: 6 }
+    assert.equal(enlargedArea(a, a), 24)
+  })
+
+  it('handles disjoint bounds', () => {
+    const a = { minX: 0, minY: 0, maxX: 2, maxY: 2 }
+    const b = { minX: 8, minY: 8, maxX: 10, maxY: 10 }
     assert.equal(enlargedArea(a, b), 100)
   })
 })
@@ -166,6 +217,14 @@ describe('distanceToPoint', () => {
   it('diagonal distance', () => {
     const d = distanceToPoint({ minX: 0, minY: 0, maxX: 10, maxY: 10 }, 13, 14)
     assert.equal(d, 5)
+  })
+
+  it('distance from zero-area bounds', () => {
+    assert.equal(distanceToPoint({ minX: 5, minY: 5, maxX: 5, maxY: 5 }, 8, 9), 5)
+  })
+
+  it('zero when point coincides with zero-area bounds', () => {
+    assert.equal(distanceToPoint({ minX: 5, minY: 5, maxX: 5, maxY: 5 }, 5, 5), 0)
   })
 })
 
@@ -193,6 +252,12 @@ describe('distanceBetween', () => {
     const b = { minX: 6, minY: 8, maxX: 10, maxY: 12 }
     assert.equal(distanceBetween(a, b), 5)
   })
+
+  it('distance between zero-area bounds', () => {
+    const a = { minX: 0, minY: 0, maxX: 0, maxY: 0 }
+    const b = { minX: 3, minY: 4, maxX: 3, maxY: 4 }
+    assert.equal(distanceBetween(a, b), 5)
+  })
 })
 
 describe('centerX / centerY', () => {
@@ -200,6 +265,23 @@ describe('centerX / centerY', () => {
     const b = { minX: 0, minY: 0, maxX: 10, maxY: 20 }
     assert.equal(centerX(b), 5)
     assert.equal(centerY(b), 10)
+  })
+
+  it('center of negative bounds', () => {
+    const b = { minX: -10, minY: -6, maxX: -4, maxY: -2 }
+    assert.equal(centerX(b), -7)
+    assert.equal(centerY(b), -4)
+  })
+
+  it('center of zero-area bounds', () => {
+    assert.equal(centerX({ minX: 7, minY: 3, maxX: 7, maxY: 3 }), 7)
+    assert.equal(centerY({ minX: 7, minY: 3, maxX: 7, maxY: 3 }), 3)
+  })
+
+  it('center of asymmetric bounds', () => {
+    const b = { minX: 1, minY: 2, maxX: 5, maxY: 12 }
+    assert.equal(centerX(b), 3)
+    assert.equal(centerY(b), 7)
   })
 })
 
@@ -222,5 +304,22 @@ describe('expandBy', () => {
     assert.equal(b.minY, b.maxY)
     assert.equal(b.minX, 2)
     assert.equal(b.minY, 2)
+  })
+
+  it('shrinks asymmetrically and clamps the smaller dimension', () => {
+    const b = expandBy({ minX: 0, minY: 0, maxX: 10, maxY: 6 }, -3)
+    assert.deepEqual(b, { minX: 3, minY: 3, maxX: 7, maxY: 3 })
+  })
+
+  it('throws on NaN amount', () => {
+    assert.throws(() => expandBy({ minX: 0, minY: 0, maxX: 10, maxY: 10 }, NaN), /finite number/)
+  })
+
+  it('throws on Infinity amount', () => {
+    assert.throws(() => expandBy({ minX: 0, minY: 0, maxX: 10, maxY: 10 }, Infinity), /finite number/)
+  })
+
+  it('throws on non-numeric amount', () => {
+    assert.throws(() => expandBy({ minX: 0, minY: 0, maxX: 10, maxY: 10 }, 'big'), /finite number/)
   })
 })
