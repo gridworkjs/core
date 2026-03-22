@@ -102,3 +102,33 @@ describe('type checks', () => {
     assert.equal(isRect({ minX: 0, minY: 0, maxX: 1, maxY: 1 }), false)
   })
 })
+
+describe('validation', () => {
+  it('point throws on NaN x', () => {
+    assert.throws(() => point(NaN, 0), { message: 'x must be a finite number' })
+  })
+
+  it('point throws on Infinity y', () => {
+    assert.throws(() => point(0, Infinity), { message: 'y must be a finite number' })
+  })
+
+  it('rect throws on NaN coordinate', () => {
+    assert.throws(() => rect(NaN, 0, 10, 10), { message: 'minX must be a finite number' })
+  })
+
+  it('rect throws on inverted bounds (minX > maxX)', () => {
+    assert.throws(() => rect(10, 0, 5, 10), { message: 'inverted rect (minX > maxX or minY > maxY)' })
+  })
+
+  it('rect throws on inverted bounds (minY > maxY)', () => {
+    assert.throws(() => rect(0, 10, 10, 5), { message: 'inverted rect (minX > maxX or minY > maxY)' })
+  })
+
+  it('circle throws on negative radius', () => {
+    assert.throws(() => circle(0, 0, -1), { message: 'radius must be non-negative' })
+  })
+
+  it('circle throws on NaN center', () => {
+    assert.throws(() => circle(NaN, 0, 5), { message: 'x must be a finite number' })
+  })
+})

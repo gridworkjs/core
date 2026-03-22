@@ -32,7 +32,7 @@ intersects(bounds(room), bounds(blast))  // true
 
 // how far is the player from the explosion's edge?
 import { distanceToPoint } from '@gridworkjs/core'
-distanceToPoint(bounds(blast), 10, 20)  // 18.28
+distanceToPoint(bounds(blast), 10, 20)  // 15.81
 ```
 
 Every spatial index in gridwork uses these same primitives and bounds operations under the hood.
