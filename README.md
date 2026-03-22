@@ -6,34 +6,36 @@
 
 <p align="center">geometry primitives and spatial index protocol</p>
 
-## install
+## Install
 
 ```
 npm install @gridworkjs/core
 ```
 
-## usage
+## Usage
+
+Define your game objects, then use bounds utilities to check spatial relationships between them:
 
 ```js
-import {
-  point, rect, circle,
-  bounds, intersects, contains,
-  SPATIAL_INDEX, isSpatialIndex
-} from '@gridworkjs/core'
+import { point, rect, circle, bounds, intersects, contains } from '@gridworkjs/core'
 
-// create geometries
-const p = point(10, 20)
-const r = rect(0, 0, 100, 100)
-const c = circle(50, 50, 25)
+// a player, the room they're in, and an explosion radius
+const player = point(10, 20)
+const room = rect(0, 0, 100, 100)
+const blast = circle(50, 50, 25)
 
-// compute bounding boxes
-bounds(p)  // { minX: 10, minY: 20, maxX: 10, maxY: 20 }
-bounds(c)  // { minX: 25, minY: 25, maxX: 75, maxY: 75 }
+// is the player inside the room?
+contains(bounds(room), bounds(player))  // true
 
-// spatial tests
-intersects(bounds(r), bounds(c))  // true
-contains(bounds(r), bounds(p))    // true
+// does the explosion overlap the room?
+intersects(bounds(room), bounds(blast))  // true
+
+// how far is the player from the explosion's edge?
+import { distanceToPoint } from '@gridworkjs/core'
+distanceToPoint(bounds(blast), 10, 20)  // 18.28
 ```
+
+Every spatial index in gridwork uses these same primitives and bounds operations under the hood.
 
 ## API
 
@@ -107,6 +109,6 @@ A `Symbol` used to mark objects as spatial indexes. Every index in the gridwork 
 
 Returns `true` if `obj` implements the spatial index protocol: has the `SPATIAL_INDEX` symbol and all required methods (`insert`, `remove`, `search`, `nearest`, `clear`).
 
-## license
+## License
 
 MIT
