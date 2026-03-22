@@ -30,7 +30,7 @@ contains(bounds(room), bounds(player))  // true
 // does the explosion overlap the room?
 intersects(bounds(room), bounds(blast))  // true
 
-// how far is the player from the explosion's edge?
+// how far is the player from the explosion's bounding box?
 import { distanceToPoint } from '@gridworkjs/core'
 distanceToPoint(bounds(blast), 10, 20)  // 15.81
 ```
@@ -97,7 +97,7 @@ Returns the center coordinate of a bounding box.
 
 #### `expandBy(bounds, amount)`
 
-Returns a new bounding box expanded by `amount` in all directions. Negative values shrink.
+Returns a new bounding box expanded by `amount` in all directions. Negative values shrink. Clamped so the result never inverts (shrinking past zero produces a zero-area box at the center).
 
 ### protocol
 

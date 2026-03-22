@@ -67,10 +67,14 @@ export function centerY(b) {
 }
 
 export function expandBy(b, amount) {
+  const cx = (b.minX + b.maxX) / 2
+  const cy = (b.minY + b.maxY) / 2
+  const hx = Math.max(0, (b.maxX - b.minX) / 2 + amount)
+  const hy = Math.max(0, (b.maxY - b.minY) / 2 + amount)
   return {
-    minX: b.minX - amount,
-    minY: b.minY - amount,
-    maxX: b.maxX + amount,
-    maxY: b.maxY + amount
+    minX: cx - hx,
+    minY: cy - hy,
+    maxX: cx + hx,
+    maxY: cy + hy
   }
 }

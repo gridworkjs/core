@@ -131,4 +131,20 @@ describe('validation', () => {
   it('circle throws on NaN center', () => {
     assert.throws(() => circle(NaN, 0, 5), { message: 'x must be a finite number' })
   })
+
+  it('circle throws on NaN radius', () => {
+    assert.throws(() => circle(0, 0, NaN), { message: 'radius must be a finite number' })
+  })
+
+  it('circle throws on Infinity radius', () => {
+    assert.throws(() => circle(0, 0, Infinity), { message: 'radius must be a finite number' })
+  })
+
+  it('point throws on string input', () => {
+    assert.throws(() => point('hello', 0), { message: 'x must be a finite number' })
+  })
+
+  it('rect throws on undefined input', () => {
+    assert.throws(() => rect(undefined, 0, 10, 10), { message: 'minX must be a finite number' })
+  })
 })

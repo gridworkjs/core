@@ -4,14 +4,28 @@
   "description": "geometry primitives and spatial index protocol",
   "type": "module",
   "main": "index.js",
+  "types": "./types/index.d.ts",
   "exports": {
-    ".": "./index.js",
-    "./geometry": "./src/geometry.js",
-    "./bounds": "./src/bounds.js",
-    "./protocol": "./src/protocol.js"
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./index.js"
+    },
+    "./geometry": {
+      "types": "./types/src/geometry.d.ts",
+      "default": "./src/geometry.js"
+    },
+    "./bounds": {
+      "types": "./types/src/bounds.d.ts",
+      "default": "./src/bounds.js"
+    },
+    "./protocol": {
+      "types": "./types/src/protocol.d.ts",
+      "default": "./src/protocol.js"
+    }
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "prepublishOnly": "npx tsc --declaration --allowJs --emitDeclarationOnly --skipLibCheck --target es2020 --module nodenext --moduleResolution nodenext --strict false --esModuleInterop true --outDir ./types src/geometry.js src/bounds.js src/protocol.js index.js"
   },
   "keywords": [
     "spatial",
@@ -31,6 +45,10 @@
   },
   "files": [
     "index.js",
-    "src/"
-  ]
+    "src/",
+    "types/"
+  ],
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
 }

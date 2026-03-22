@@ -30,6 +30,14 @@ describe('bounds', () => {
   it('throws on unknown geometry', () => {
     assert.throws(() => bounds({ type: 'polygon' }), /unknown geometry type/)
   })
+
+  it('throws on null input', () => {
+    assert.throws(() => bounds(null))
+  })
+
+  it('throws on undefined input', () => {
+    assert.throws(() => bounds(undefined))
+  })
 })
 
 describe('intersects', () => {
@@ -204,5 +212,15 @@ describe('expandBy', () => {
   it('shrinks with negative amount', () => {
     const b = expandBy({ minX: 0, minY: 0, maxX: 10, maxY: 10 }, -2)
     assert.deepEqual(b, { minX: 2, minY: 2, maxX: 8, maxY: 8 })
+  })
+
+  it('clamps to zero-area when shrinking past center', () => {
+    const b = expandBy({ minX: 0, minY: 0, maxX: 4, maxY: 4 }, -3)
+    assert.ok(b.minX <= b.maxX, 'minX should not exceed maxX')
+    assert.ok(b.minY <= b.maxY, 'minY should not exceed maxY')
+    assert.equal(b.minX, b.maxX)
+    assert.equal(b.minY, b.maxY)
+    assert.equal(b.minX, 2)
+    assert.equal(b.minY, 2)
   })
 })
